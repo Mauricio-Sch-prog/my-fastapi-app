@@ -30,7 +30,6 @@ env.bak/
 venv.bak/
 
 .env
-.env.*
 !.env.example
 
 .pytest_cache/
@@ -52,3 +51,5 @@ htmlcov/
 logs/
 
 .fastapi/
+
+notes.txt
