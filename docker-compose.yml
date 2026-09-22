@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: fastapi_postgres
     environment:
       POSTGRES_USER: ${DATABASE_USER}
@@ -10,6 +10,7 @@ services:
       - "${DATABASE_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
 
   redis:
     image: redis:alpine
