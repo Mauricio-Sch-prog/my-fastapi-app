@@ -1,3 +1,4 @@
+from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -11,3 +12,5 @@ class Product(Base):
     price: Mapped[int]
     desc: Mapped[str]
     is_offer: Mapped[bool]
+
+    embedding: Mapped[list[float]] = mapped_column(Vector(3072), nullable=True)
