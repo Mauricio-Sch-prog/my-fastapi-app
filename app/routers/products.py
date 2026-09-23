@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dto.product import CreateProductDto
-from app.gemini import add_product_with_embedding
 from app.models.Product import Product
+from app.services.ai_model import model_service
 
 router = APIRouter(
     prefix="/products",
@@ -17,18 +17,20 @@ db_dependency = Depends(get_db)
 @router.post("/")
 async def create_product(product: CreateProductDto, db: AsyncSession = db_dependency):
 
+    
 
-    product = await add_product_with_embedding(
-        db=db,
+    new_product = Product(
         name=product.name,
         price=product.price,
         desc=product.desc,
         is_offer=product.is_offer,
+        embedding= await model_service.get_embed(product.model_dump())
     )
-
-    print(product)
+    db.add(new_product)
+    await db.commit()
+    await db.refresh(new_product)
     
-    return product
+    return new_product
 
 @router.get("/")
 async def list_products(db: AsyncSession = db_dependency):
