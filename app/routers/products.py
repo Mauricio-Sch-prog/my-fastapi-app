@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import defer
 
 from app.database import get_db
 from app.dto import AiPromptDto, CreateProductDto
@@ -40,10 +41,17 @@ async def search_products(prompt: AiPromptDto, db: AsyncSession = db_dependency)
         select(Product)
         .order_by(Product.embedding.cosine_distance(query_vector))
         .limit(prompt.limit)
+        .options(defer(Product.embedding))
     )
 
     result = await db.execute(stmt)
-    return result.scalars().all()
+
+    chat_response = await model_service.chat(
+        user_query=prompt.prompt, 
+        matching_products=result.scalars().all()
+        )
+
+    return chat_response
 
 @router.get("/")
 async def list_products(db: AsyncSession = db_dependency):
